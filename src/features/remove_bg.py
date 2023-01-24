@@ -1,11 +1,11 @@
 import numpy as np
 from PIL import Image
-import io
 import os
 import cv2
 import uuid
-from skimage import transform
+from skimage import io, transform
 import torch
+from pathlib import Path
 
 def save_output(image_name, output_name, pred, d_dir, type):
     predict = pred
@@ -22,13 +22,13 @@ def save_output(image_name, output_name, pred, d_dir, type):
         imo = np.concatenate((image, mask), axis=2)
         imo = Image.fromarray(imo, 'RGBA')
 
-    imo.save(d_dir+output_name)
+    imo.save(d_dir / output_name)
 # Remove Background From Image (Generate Mask, and Final Results)
 
 def remove_bg(imagePath, currentDir, net):
-    inputs_dir = os.path.join(currentDir, 'static/inputs/')
-    results_dir = os.path.join(currentDir, 'static/results/')
-    masks_dir = os.path.join(currentDir, 'static/masks/')
+    inputs_dir = Path(__file__).parent.parent.parent / "data" / "inputs"
+    results_dir = Path(__file__).parent.parent.parent / "data" / "results"
+    masks_dir = Path(__file__).parent.parent.parent / "data" / "masks"
 
     # convert string of image data to uint8
     with open(imagePath, "rb") as image:
@@ -49,7 +49,7 @@ def remove_bg(imagePath, currentDir, net):
 
     # save image to inputs
     unique_filename = str(uuid.uuid4())
-    cv2.imwrite(inputs_dir+unique_filename+'.jpg', img)
+    cv2.imwrite(str(inputs_dir / (unique_filename +'.jpg')), img)
 
     # processing
     image = transform.resize(img, (320, 320), mode='constant')
@@ -66,8 +66,6 @@ def remove_bg(imagePath, currentDir, net):
 
     image = image.type(torch.FloatTensor)
     image = torch.autograd.Variable(image)
-
-    print(net)
     
     d1, d2, d3, d4, d5, d6, d7 = net(image)
     pred = d1[:, 0, :, :]
@@ -76,8 +74,8 @@ def remove_bg(imagePath, currentDir, net):
     dn = (pred-mi)/(ma-mi)
     pred = dn
 
-    save_output(inputs_dir+unique_filename+'.jpg', unique_filename +
+    save_output(str(inputs_dir / (unique_filename + '.jpg')), unique_filename +
                 '.png', pred, results_dir, 'image')
-    save_output(inputs_dir+unique_filename+'.jpg', unique_filename +
+    save_output(str(inputs_dir / (unique_filename + '.jpg')), unique_filename +
                 '.png', pred, masks_dir, 'mask')
     return "---Success---"

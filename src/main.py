@@ -16,15 +16,17 @@ def main():
                             model_name, model_name + '.pth')
 
     net = U2NET(3, 1)
+    '''
     if torch.cuda.is_available():
-        net.load_state_dict(torch.load(model_dir))
+        net.load_state_dict(torch.load(model_dir)
         net.cuda()
         print("Model loaded on cuda device")
     else:
-        net.load_state_dict(torch.load(model_dir, map_location='cpu'))
-        print("Model loaded on cpu")
-
-    remove_bg(data_path / "2023_01_23-07_30_39_PM.jpg", currentDir, net)
+    '''
+    net.load_state_dict(torch.load(model_dir, map_location='cpu'))
+    print("Model loaded on cpu")
+    
+    remove_bg(data_path / "4.jpg", currentDir, net)
 
 if __name__ == '__main__':
     main()
