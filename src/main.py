@@ -5,6 +5,7 @@ import os
 import torch
 from model.u2net import U2NET
 
+
 def main():
     data_path = Path(__file__).parent.parent / "data" / "uploaded"
     currentDir = os.path.dirname(__file__)
@@ -16,6 +17,7 @@ def main():
                             model_name, model_name + '.pth')
 
     net = U2NET(3, 1)
+    torch.jit.script(net).save("model.ptc")
     '''
     if torch.cuda.is_available():
         net.load_state_dict(torch.load(model_dir)
@@ -25,7 +27,6 @@ def main():
     '''
     net.load_state_dict(torch.load(model_dir, map_location='cpu'))
     print("Model loaded on cpu")
-    
     remove_bg(data_path / "4.jpg", currentDir, net)
 
 if __name__ == '__main__':
