@@ -25,13 +25,12 @@ def save_output(image_name, output_name, pred, d_dir, type):
     imo.save(d_dir / output_name)
 # Remove Background From Image (Generate Mask, and Final Results)
 
-def remove_bg(imagePath, currentDir, net):
-    inputs_dir = Path(__file__).parent.parent.parent / "data" / "inputs"
-    results_dir = Path(__file__).parent.parent.parent / "data" / "results"
-    masks_dir = Path(__file__).parent.parent.parent / "data" / "masks"
+def remove_bg(imagePath, filename, net) -> bool:
+    results_dir = Path(__file__).parent.parent / "data" / "temp" / "results"
+    masks_dir = Path(__file__).parent.parent / "data" / "temp" / "masks"
 
     # convert string of image data to uint8
-    with open(imagePath, "rb") as image:
+    with open(imagePath / filename, "rb") as image:
         f = image.read()
         img = bytearray(f)
 
@@ -46,10 +45,6 @@ def remove_bg(imagePath, currentDir, net):
     except:
         # build a response dict to send back to client
         return "---Empty image---"
-
-    # save image to inputs
-    unique_filename = str(uuid.uuid4())
-    cv2.imwrite(str(inputs_dir / (unique_filename +'.jpg')), img)
 
     # processing
     image = transform.resize(img, (320, 320), mode='constant')
@@ -74,8 +69,8 @@ def remove_bg(imagePath, currentDir, net):
     dn = (pred-mi)/(ma-mi)
     pred = dn
 
-    save_output(str(inputs_dir / (unique_filename + '.jpg')), unique_filename +
+    save_output(str(imagePath / filename), os.path.splitext(filename)[0] +
                 '.png', pred, results_dir, 'image')
-    save_output(str(inputs_dir / (unique_filename + '.jpg')), unique_filename +
+    save_output(str(imagePath / filename), os.path.splitext(filename)[0] +
                 '.png', pred, masks_dir, 'mask')
-    return "---Success---"
+    return True

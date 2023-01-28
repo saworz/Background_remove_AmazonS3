@@ -3,6 +3,13 @@
 
 #Models
 saved_models/
+model.ptc
+
+#git
+.gitignore
+
+#data
+data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
