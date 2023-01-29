@@ -1,52 +1,43 @@
-import numpy as np
 from PIL import Image
-import os
-import cv2
-import uuid
 from skimage import io, transform
-import torch
 from pathlib import Path
 
-def save_output(image_name, output_name, pred, d_dir, type):
-    predict = pred
-    predict = predict.squeeze()
+import os
+import cv2
+import numpy as np
+import torch
+
+
+def save_output(image_name: str, output_name: str, pred: torch.tensor, d_dir: Path, type: str):
+
+    predict = pred.squeeze()
     predict_np = predict.cpu().data.numpy()
-    im = Image.fromarray(predict_np*255).convert('RGB')
-    image = io.imread(image_name)
-    imo = im.resize((image.shape[1], image.shape[0]))
-    pb_np = np.array(imo)
+
+    img = Image.fromarray(predict_np*255).convert('RGB')
+    image_in = io.imread(image_name)
+    image_out = img.resize((image_in.shape[1], image_in.shape[0]))
+
     if type == 'image':
         # Make and apply mask
-        mask = pb_np[:, :, 0]
+        mask = np.array(image_out)[:, :, 0]
         mask = np.expand_dims(mask, axis=2)
-        imo = np.concatenate((image, mask), axis=2)
-        imo = Image.fromarray(imo, 'RGBA')
+        image_out = np.concatenate((image_in, mask), axis=2)
+        image_out = Image.fromarray(image_out, 'RGBA')
 
-    imo.save(d_dir / output_name)
-# Remove Background From Image (Generate Mask, and Final Results)
+    image_out.save(d_dir / output_name)
 
-def remove_bg(imagePath, filename, net) -> bool:
+
+def remove_bg(imagePath: Path, filename: str, net: torch.nn.Sequential) -> bool:
+
     results_dir = Path(__file__).parent.parent / "data" / "temp" / "results"
     masks_dir = Path(__file__).parent.parent / "data" / "temp" / "masks"
 
-    # convert string of image data to uint8
     with open(imagePath / filename, "rb") as image:
         f = image.read()
         img = bytearray(f)
 
     nparr = np.frombuffer(img, np.uint8)
-
-    if len(nparr) == 0:
-        return '---Empty image---'
-
-    # decode image
-    try:
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    except:
-        # build a response dict to send back to client
-        return "---Empty image---"
-
-    # processing
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     image = transform.resize(img, (320, 320), mode='constant')
 
     tmpImg = np.zeros((image.shape[0], image.shape[1], 3))
@@ -64,10 +55,9 @@ def remove_bg(imagePath, filename, net) -> bool:
     
     d1, d2, d3, d4, d5, d6, d7 = net(image)
     pred = d1[:, 0, :, :]
-    ma = torch.max(pred)
-    mi = torch.min(pred)
-    dn = (pred-mi)/(ma-mi)
-    pred = dn
+    pred_max = torch.max(pred)
+    pred_min = torch.min(pred)
+    pred = (pred-pred_min)/(pred_max-pred_min)
 
     save_output(str(imagePath / filename), os.path.splitext(filename)[0] +
                 '.png', pred, results_dir, 'image')

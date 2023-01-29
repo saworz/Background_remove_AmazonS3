@@ -1,22 +1,21 @@
 from features.s3_sender import S3SENDER
-from datetime import datetime
 from features.remove_bg import remove_bg
-from PIL import Image
 
+from PIL import Image
 from pathlib import Path
-import os
-import streamlit as st
 from io import BytesIO
 
-def save_uploadedfile(data_path: Path, uploadedfile: st.file_uploader) -> str:
+import os
+import streamlit as st
+
+
+def save_uploadedfile(data_path: Path, uploadedfile: st.file_uploader):
 
     filename = uploadedfile.name
 
     with open(os.path.join(data_path, filename), "wb") as f:
          f.write(uploadedfile.getbuffer())
          st.success("Saved File to {}".format(data_path))
-
-    return os.path.splitext(filename)[0]
 
 
 def streamlit_handling(temp_path: Path, net):
@@ -37,13 +36,15 @@ def streamlit_handling(temp_path: Path, net):
 
     if isinstance(uploaded_file, BytesIO):
         show_file.image(uploaded_file)
+        filename = os.path.splitext(uploaded_file.name)[0]
 
     if st.button('Delete background'):
-        filename = save_uploadedfile(inputs_dir, uploaded_file)
-        bg_removed=remove_bg(inputs_dir, uploaded_file.name, net)
+        save_uploadedfile(inputs_dir, uploaded_file)
+        bg_removed = remove_bg(inputs_dir, uploaded_file.name, net)
 
         mask_img = Image.open(str(temp_path) + "/masks/" + filename + ".png")
         result_img = Image.open(str(temp_path) + "/results/" + filename + ".png")
+
         st.image([mask_img, result_img], width=350, caption=["Generated mask", "Final result"])
         st.text(str(temp_path) + "/masks/" + filename + ".png")
 
