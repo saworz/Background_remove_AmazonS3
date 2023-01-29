@@ -1,7 +1,6 @@
-import boto3
-import json
 from PIL import Image
-from dotenv import load_dotenv
+
+import boto3
 import os
 
 aws_access_key_id = os.getenv('env_aws_access_key_id')
@@ -10,7 +9,7 @@ aws_secret_access_key = os.getenv('env_aws_secret_access_key')
 class S3SENDER:
     """Sends data to AWS S3 bucket"""
 
-    def __init__(self, user_email: str, bucket: str):
+    def __init__(self, user_email: str, bucket: str) -> None:
 
         self.text = ''
 

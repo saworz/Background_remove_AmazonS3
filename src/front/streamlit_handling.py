@@ -8,7 +8,6 @@ from io import BytesIO
 import os
 import streamlit as st
 
-
 def save_uploadedfile(data_path: Path, uploadedfile: st.file_uploader):
 
     filename = uploadedfile.name
@@ -42,11 +41,19 @@ def streamlit_handling(temp_path: Path, net):
         save_uploadedfile(inputs_dir, uploaded_file)
         bg_removed = remove_bg(inputs_dir, uploaded_file.name, net)
 
-        mask_img = Image.open(str(temp_path) + "/masks/" + filename + ".png")
-        result_img = Image.open(str(temp_path) + "/results/" + filename + ".png")
+        mask_path = str(temp_path) + "/masks/" + filename + ".png"
+        result_path = str(temp_path) + "/results/" + filename + ".png" 
+
+        mask_img = Image.open(mask_path)
+        result_img = Image.open(result_path)
 
         st.image([mask_img, result_img], width=350, caption=["Generated mask", "Final result"])
         st.text(str(temp_path) + "/masks/" + filename + ".png")
 
+        st.session_state.mask_path = mask_path
+        st.session_state.result_path = result_path
+
     if st.button('Upload image', disabled=not bg_removed):
-        sender.send_image(inputs_dir / filename, filename)
+        sender.send_image(inputs_dir / uploaded_file.name, uploaded_file.name)
+        sender.send_image(st.session_state.mask_path, filename + "_mask.png")
+        sender.send_image(st.session_state.result_path, filename + "_result.png")
