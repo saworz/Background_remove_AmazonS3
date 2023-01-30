@@ -34,6 +34,10 @@ def streamlit_handling(temp_path: Path, net):
     st.markdown(subtitle_1, unsafe_allow_html=True)
     
     col1, col2, col3, col4, col5 = st.columns([1,1,1,1,1])
+    col_dict = {}
+    col_dict['1'] = col1
+    col_dict['3'] = col3
+    col_dict['5'] = col5
 
     with col3 :
         if st.button('Read data from S3'):
@@ -42,10 +46,27 @@ def streamlit_handling(temp_path: Path, net):
             json_string = response['Payload'].read().decode()
             files_list = json.loads(json_string)["body"]
             st.session_state.files_list = files_list
-            
-            for item in files_list:
-                if not "_mask.png" in item and not "_result.png" in item:
-                    st.markdown("- " + item + ",  " + os.path.splitext(item)[0] + "_mask.png" + ",  " + os.path.splitext(item)[0] + "_result.png")
+            st.session_state.display_results = True
+
+    col1, col2, col3, col4, col5 = st.columns([1,1,1,1,1])
+    col_dict = {}
+    col_dict['1'] = col1
+    col_dict['3'] = col3
+    col_dict['5'] = col5
+
+    try:
+        if st.session_state.display_results:
+            column=1
+
+            for i, item in enumerate(st.session_state.files_list):
+                with col_dict[str(column)]:
+                    if not "_mask.png" in item and not "_result.png" in item:
+                        st.markdown("- " + item + ",  " + os.path.splitext(item)[0] + "_mask.png" + ",  " + os.path.splitext(item)[0] + "_result.png")
+                        column+=2
+                        if column==7:
+                            column=1
+    except:
+        pass
 
     st.markdown("""---""")
     subtitle_2 = '<p style="text-align: center; font-family:Arial; color:White; font-size: 30px;">Enter filename and two diagonal positions of the image to be cut.</p>'
@@ -63,7 +84,13 @@ def streamlit_handling(temp_path: Path, net):
     col1, col2, col3, col4, col5 = st.columns([1,1,1,1,1])
 
     with col3:
-        st.button('Crop and display selected image')   
+        if st.button('Crop and display selected image'):
+            response = lambda_client.invoke(FunctionName='crop_images', 
+                        InvocationType='RequestResponse',
+                        Payload=json.dumps(file_request))
+            json_string = response['Payload'].read().decode()
+            response = json.loads(json_string)["body"]
+            print(response)
 
     st.markdown("""---""")
     subtitle_3 = '<p style="text-align: center; font-family:Arial; color:White; font-size: 30px;">Upload an image and get .png without the background.</p>'
