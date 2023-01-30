@@ -27,7 +27,7 @@ def save_output(image_name: str, output_name: str, pred: torch.tensor, d_dir: Pa
     image_out.save(d_dir / output_name)
 
 
-def remove_bg(imagePath: Path, filename: str, net: torch.nn.Sequential) -> bool:
+def remove_bg(imagePath: Path, filename: str, threshold: float, net: torch.nn.Sequential) -> bool:
 
     results_dir = Path(__file__).parent.parent / "data" / "temp" / "results"
     masks_dir = Path(__file__).parent.parent / "data" / "temp" / "masks"
@@ -55,12 +55,15 @@ def remove_bg(imagePath: Path, filename: str, net: torch.nn.Sequential) -> bool:
     
     d1, d2, d3, d4, d5, d6, d7 = net(image)
     pred = d1[:, 0, :, :]
+
     pred_max = torch.max(pred)
     pred_min = torch.min(pred)
     pred = (pred-pred_min)/(pred_max-pred_min)
 
+    rounded_pred = torch.from_numpy(np.where(pred>threshold, 1, 0))
+
     save_output(str(imagePath / filename), os.path.splitext(filename)[0] +
-                '.png', pred, results_dir, 'image')
+                '.png', rounded_pred, results_dir, 'image')
     save_output(str(imagePath / filename), os.path.splitext(filename)[0] +
-                '.png', pred, masks_dir, 'mask')
+                '.png', rounded_pred, masks_dir, 'mask')
     return True
