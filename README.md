@@ -1,41 +1,48 @@
-project_name
+Background remover with data storage at Amazon S3 Bucket
 ==============================
 
-A short description of the project.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    NOT FINISHED YET
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+The idea of the project is to create a model that can locally remove the background from an image and store it in Amazon S3 Bucket.
+The user can also use Lambda requests to change the size (W x H) of already stored images.
+
+![image info](Project_diagram.jpg)
 
 Project Organization
 ------------
 
-├── README.md          <- The top-level README for developers using this project.
-│
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
-│
-├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-│
-├── Animals_classification_VGG16                <- Source code for use in this project.
-│   ├── __init__.py    <- Makes src a Python module
-│   │
-│   ├── data           <- Scripts to handle data
-│   │   └── extract_dataset.py <- Unzips dataset
-│   │   └── get_images.py      <- Gets list of all .jpeg, .jpg or .png files in dir
-│   │   └── parse_data.py      <- Data parser
-│   │   └── split_folders.py   <- Splits data into training and validation dirs
-│   │
-│   │
-│   ├── features       <- Scripts to turn raw data into features for modeling
-│   │   └── handle_input.py    <- Used to choose between training and loading model
-│   │   └── image_folder.py    <- Custom ImageFolder class for data validation
-│   │   └── predict_custom_image.py  <- Used to validate model on a custom data
-│   │
-│   │
-│   ├── model        <- Scripts to train/load/save model
-│   │   │── create_model.py    <- Initialize new model                
-│   │   ├── load_model.py      <- Load existing weights to the model
-│   │   └── save_model.py      <- Save trained model's weights to file
-│   │   └── training.py        <- Training pipeline
-│   │
-└── tox.ini            <- tox file with settings for running tox
+    ├── README.md          <- The top-level README for developers using this project.
+    │
+    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
+    │                         generated with `pip freeze > requirements.txt`
+    │
+    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
+    │
+    ├── Animals_classification_VGG16                <- Source code for use in this project.
+    │   ├── __init__.py    <- Makes src a Python module
+    │   │
+    │   ├── data           <- Scripts to handle data
+    │   │   └── extract_dataset.py <- Unzips dataset
+    │   │   └── get_images.py      <- Gets list of all .jpeg, .jpg or .png files in dir
+    │   │   └── parse_data.py      <- Data parser
+    │   │   └── split_folders.py   <- Splits data into training and validation dirs
+    │   │
+    │   │
+    │   ├── features       <- Scripts to turn raw data into features for modeling
+    │   │   └── handle_input.py    <- Used to choose between training and loading model
+    │   │   └── image_folder.py    <- Custom ImageFolder class for data validation
+    │   │   └── predict_custom_image.py  <- Used to validate model on a custom data
+    │   │
+    │   │
+    │   ├── model        <- Scripts to train/load/save model
+    │   │   │── create_model.py    <- Initialize new model                
+    │   │   ├── load_model.py      <- Load existing weights to the model
+    │   │   └── save_model.py      <- Save trained model's weights to file
+    │   │   └── training.py        <- Training pipeline
+    │   │
+    └── tox.ini            <- tox file with settings for running tox
 
 
 --------

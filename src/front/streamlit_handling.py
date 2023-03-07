@@ -34,10 +34,6 @@ def streamlit_handling(temp_path: Path, net):
     st.markdown(subtitle_1, unsafe_allow_html=True)
     
     col1, col2, col3, col4, col5 = st.columns([1,1,1,1,1])
-    col_dict = {}
-    col_dict['1'] = col1
-    col_dict['3'] = col3
-    col_dict['5'] = col5
 
     with col3 :
         if st.button('Read data from S3'):
@@ -76,21 +72,29 @@ def streamlit_handling(temp_path: Path, net):
 
     col1, col2, col3, col4 = st.columns([1,1,1,1])
 
+    with col1:
+        Upper = st.number_input(label="Upper", min_value=0, max_value=9999)
     with col2:
-        UpLeft = st.number_input(label="Up left", min_value=0, max_value=9999)
+        Left = st.number_input(label="Left", min_value=0, max_value=9999)
     with col3:
-        RightDown = st.number_input(label="Right down", min_value=0, max_value=9999)
+        Right = st.number_input(label="Right", min_value=0, max_value=9999)
+    with col4:
+        Lower = st.number_input(label="Lower", min_value=0, max_value=9999)
     
-    col1, col2, col3, col4, col5 = st.columns([1,1,1,1,1])
+    col1, col2, col3, col4 = st.columns([1,1,1,1])
 
-    with col3:
-        if st.button('Crop and display selected image'):
+    with col2:
+        if st.button('Test values'):
             response = lambda_client.invoke(FunctionName='crop_images', 
                         InvocationType='RequestResponse',
                         Payload=json.dumps(file_request))
             json_string = response['Payload'].read().decode()
+            print(json_string)
             response = json.loads(json_string)["body"]
             print(response)
+    with col3:
+        if st.button('Save image to S3'):
+            pass
 
     st.markdown("""---""")
     subtitle_3 = '<p style="text-align: center; font-family:Arial; color:White; font-size: 30px;">Upload an image and get .png without the background.</p>'
